@@ -19,8 +19,10 @@ import { MAP_URL, remaining, whatsappUrl } from '@/lib/invitation';
 import {
   clearConfirmation,
   guestCode,
+  lookupGuest,
   lookupRsvp,
   normalizePhone,
+  partnerName,
   readConfirmation,
   saveConfirmation,
   submitRsvp,
@@ -35,11 +37,44 @@ import {
   copyText,
 } from '@/lib/pix';
 import { siteConfig } from '@/site.config';
+import { glideTo } from '@/lib/scroll';
+import { Doodle } from '@/components/doodle';
+import { Keepsake } from '@/components/keepsake';
+import { MapDrawing } from '@/components/map-drawing';
+import { Mural } from '@/components/mural';
 import { Marks } from '@/components/marks';
 import { Petals } from '@/components/petals';
 import { Thread } from '@/components/thread';
 import { WindImage } from '@/components/wind-image';
 
+function HeroGreeting({ onGuest }: { onGuest?: (name: string) => void }) {
+  const [who, setWho] = useState('');
+  useEffect(() => {
+    const endpoint = siteConfig.rsvpEndpoint;
+    if (!endpoint) return;
+    const c = guestCode(window.location.search);
+    if (!c) return;
+    let cancelled = false;
+    void lookupGuest(endpoint, c).then((found) => {
+      if (cancelled) return;
+      const nome = found.convidado?.nome || (found.confirmado ? found.nome : '');
+      if (!nome) return;
+      const par = partnerName(found.convidado?.acompanhante);
+      const completo = par ? `${nome} e ${par}` : nome;
+      setWho(completo);
+      onGuest?.(completo);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [onGuest]);
+  if (!who) return null;
+  return (
+    <p className="hero-greeting">
+      Para <span className="written">{who}</span>
+    </p>
+  );
+}
 function Countdown() {
   const [time, setTime] = useState<ReturnType<typeof remaining> | null>(null);
   useEffect(() => {
@@ -106,7 +141,7 @@ function Rsvp() {
       const c = guestCode(window.location.search);
       if (!c) return;
       setCode(c);
-      lookupRsvp(endpoint, { c })
+      lookupGuest(endpoint, c)
         .then((found) => {
           if (found.confirmado && found.nome) {
             const value = { nome: found.nome, pessoas: found.pessoas ?? 1, data: found.data ?? '' };
@@ -437,6 +472,76 @@ function Pix() {
   );
 }
 export default function Invitation() {
+  const [sealed, setSealed] = useState(true);
+  const [guest, setGuest] = useState('');
+  const openTimer = useRef<number>(0);
+  function openInvitation(scrollTo?: string) {
+    setSealed(false);
+    try {
+      sessionStorage.setItem('luiseraquel:aberto', '1');
+    } catch {
+      // sem armazenamento: só não lembra entre páginas
+    }
+    if (scrollTo) {
+      window.clearTimeout(openTimer.current);
+      openTimer.current = window.setTimeout(() => {
+        const target = document.querySelector<HTMLElement>(scrollTo);
+        if (!target) return;
+        glideTo(() => target.getBoundingClientRect().top + window.scrollY);
+      }, 1150);
+    }
+  }
+  useEffect(() => {
+    // quem já abriu nesta sessão, chegou por um link com âncora ou prefere menos movimento vê tudo aberto
+    let remembered = false;
+    try {
+      remembered = sessionStorage.getItem('luiseraquel:aberto') === '1';
+    } catch {
+      remembered = false;
+    }
+    const direct = !!window.location.hash || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (remembered || direct) {
+      const timer = window.setTimeout(() => setSealed(false), 0);
+      return () => window.clearTimeout(timer);
+    }
+  }, []);
+  useEffect(() => {
+    if (!sealed) return;
+    // qualquer gesto de rolar também abre: ninguém fica preso na capa
+    let startY = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY > 0) openInvitation();
+    };
+    const onTouchStart = (event: TouchEvent) => {
+      startY = event.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY ?? startY;
+      if (startY - y > 24) openInvitation();
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) openInvitation();
+    };
+    // link de âncora (topo, "pular para o convite") abre e só depois rola
+    const onClick = (event: MouseEvent) => {
+      const link = (event.target as HTMLElement | null)?.closest('a[href^="#"]');
+      if (!link) return;
+      event.preventDefault();
+      openInvitation(link.getAttribute('href') || undefined);
+    };
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('keydown', onKey);
+    document.addEventListener('click', onClick);
+    return () => {
+      document.removeEventListener('click', onClick);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [sealed]);
   useEffect(() => {
     if (
       window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
@@ -464,7 +569,10 @@ export default function Invitation() {
       <a className="skip-link" href="#convite">
         Pular para o convite
       </a>
-      <main>
+      <main className={sealed ? 'is-sealed' : 'is-open'}>
+        <noscript>
+          <style>{'.is-sealed .folded{grid-template-rows:1fr}.is-sealed .seal-label{display:none}'}</style>
+        </noscript>
         <Thread />
         <section className="hero" id="inicio" aria-labelledby="couple-name">
           <WindImage
@@ -492,6 +600,7 @@ export default function Invitation() {
             </a>
           </header>
           <div className="hero-content">
+            <HeroGreeting onGuest={setGuest} />
             <p className="eyebrow hero-reveal">Nós vamos nos casar</p>
             <h1 id="couple-name" className="hero-reveal">
               <span>Luis</span>
@@ -508,15 +617,29 @@ export default function Invitation() {
               <i />
               <span>2026</span>
             </div>
-            <a className="open-invitation hero-reveal" href="#convite">
-              Abrir convite <ArrowDown size={18} aria-hidden="true" />
-            </a>
+            <button
+              type="button"
+              className="seal hero-reveal"
+              onClick={() => openInvitation('#convite')}
+            >
+              <span className="seal-ring" aria-hidden="true">
+                <span className="seal-mono">
+                  L<i>&amp;</i>R
+                </span>
+              </span>
+              <span className="seal-label">
+                {sealed ? 'Abrir convite' : 'Ver convite'}{' '}
+                <ArrowDown size={14} aria-hidden="true" />
+              </span>
+            </button>
           </div>
           <div className="hero-bottom">
             <span>Casa Nonna · Cuiabá</span>
             <span>Sábado · 19h30</span>
           </div>
         </section>
+        <div className="folded">
+          <div className="folded-inner">
         <section id="convite" className="blessing section-pad torn-top">
           <Marks set="blessing" />
           <h2 className="sr-only">Com a bênção de Deus e de nossos pais</h2>
@@ -581,6 +704,7 @@ export default function Invitation() {
                 <br />
                 Popular · Cuiabá, MT
               </p>
+              <MapDrawing />
               <a
                 className="text-link"
                 href={MAP_URL}
@@ -600,6 +724,7 @@ export default function Invitation() {
             Salvar na minha agenda
           </a>
           <div className="waiting" data-reveal>
+            <Doodle name="sprig" className="doodle-sprig" />
             <p className="eyebrow">Cada dia mais perto</p>
             <Countdown />
           </div>
@@ -627,12 +752,14 @@ export default function Invitation() {
               <br />
               <span>Luis e Raquel</span>
             </div>
+            <Doodle name="grass" className="doodle-grass" />
           </div>
           <div className="rsvp-panel" data-reveal>
             <h3>Confirme sua presença</h3>
             <Rsvp />
           </div>
         </section>
+        <Mural />
         <section
           className="gifts section-pad torn-top"
           id="presentes"
@@ -653,6 +780,7 @@ export default function Invitation() {
               />
             </div>
             <div className="gifts-copy" data-reveal>
+              <Doodle name="birds" className="doodle-birds" />
               <p className="eyebrow">
                 <Gift size={14} strokeWidth={1.5} aria-hidden="true" /> Presentes
               </p>
@@ -674,13 +802,13 @@ export default function Invitation() {
             </div>
           </div>
         </section>
+          </div>
+        </div>
       </main>
       <footer className="torn-top">
         <span className="footer-names">Luis e Raquel</span>
         <span>14 de novembro de 2026</span>
-        <a href={`${siteConfig.basePath}/Convite-Luis-e-Raquel.pdf`} download>
-          Baixar convite em PDF <ArrowDown size={15} />
-        </a>
+        <Keepsake guest={guest} />
         <a href="#inicio">
           Voltar ao início <ArrowUpRight size={15} />
         </a>

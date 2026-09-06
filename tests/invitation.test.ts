@@ -64,6 +64,7 @@ await test('keeps the bank-generated Pix payload intact (CRC, key and descriptio
 });
 
 import {
+  partnerName,
   STORAGE_KEY,
   guestCode,
   lookupRsvp,
@@ -130,4 +131,70 @@ await test('remembers the confirmation on the device and survives a broken stora
   assert.equal(readConfirmation(broken), null);
   assert.doesNotThrow(() => saveConfirmation({ nome: 'Ana', pessoas: 1, data: '' }, broken));
   assert.equal(readConfirmation(null), null);
+});
+
+import { ease } from '../lib/scroll.ts';
+
+await test('eases the scroll from a standstill to a standstill and never leaves 0..1', () => {
+  assert.equal(ease(0), 0);
+  assert.equal(ease(1), 1);
+  assert.equal(ease(0.5), 0.5);
+  assert.equal(ease(-3), 0);
+  assert.equal(ease(9), 1);
+  let previous = -1;
+  for (let i = 0; i <= 20; i += 1) {
+    const value = ease(i / 20);
+    assert.ok(value >= previous, 'a rolagem nunca volta atrás');
+    previous = value;
+  }
+});
+
+await test('reads the partner name even when the sheet says "marido (Junior)"', () => {
+  assert.equal(partnerName('marido (Junior)'), 'Junior');
+  assert.equal(partnerName('Esposa (Ana Maria)'), 'Ana Maria');
+  assert.equal(partnerName('Madu'), 'Madu');
+  assert.equal(partnerName('Luan (a confirmar)'), 'Luan');
+  assert.equal(partnerName(''), '');
+  assert.equal(partnerName(null), '');
+});
+
+import { cleanRecados, fetchMural, firstName } from '../lib/mural.ts';
+
+await test('shows only first names and drops empty or malformed notes on the wall', () => {
+  assert.equal(firstName('  Ana   Souza Lima '), 'Ana');
+  assert.equal(firstName('Pastor Felipe'), 'Pastor Felipe');
+  assert.equal(firstName('Tia Lene Ribeiro'), 'Tia Lene');
+  assert.equal(firstName('Obr. Yuri'), 'Obr. Yuri');
+  assert.equal(firstName('Vovó'), 'Vovó');
+  assert.equal(firstName(''), '');
+  assert.deepEqual(
+    cleanRecados([
+      { nome: 'Ana Souza', recado: ' Que dia lindo! ' },
+      { nome: '', recado: 'sem nome' },
+      { nome: 'Bruno', recado: '   ' },
+      { nome: 'Caio', recado: { oi: 1 } },
+      'lixo',
+    ]),
+    [{ nome: 'Ana', recado: 'Que dia lindo!' }],
+  );
+  assert.deepEqual(cleanRecados(null), []);
+  assert.equal(cleanRecados(Array.from({ length: 30 }, () => ({ nome: 'Ana', recado: 'oi' }))).length, 12);
+});
+await test('asks the sheet for the wall and never breaks the page when it fails', async () => {
+  const seen: string[] = [];
+  const ok = (async (url: string) => {
+    seen.push(url);
+    return new Response(JSON.stringify({ ok: true, recados: [{ nome: 'Ana Souza', recado: 'oi' }] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', ok), [{ nome: 'Ana', recado: 'oi' }]);
+  assert.equal(new URL(seen[0]).searchParams.get('mural'), '1');
+  const boom = (async () => {
+    throw new Error('offline');
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', boom), []);
+  const bad = (async () => new Response('nope', { status: 500 })) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', bad), []);
 });

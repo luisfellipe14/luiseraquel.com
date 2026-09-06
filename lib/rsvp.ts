@@ -116,3 +116,24 @@ export function clearConfirmation(store: StorageLike | null = storage()): void {
     // idem
   }
 }
+
+// A capa e o formulário perguntam pelo mesmo código: uma consulta só, compartilhada.
+const guestCache = new Map<string, Promise<Lookup>>();
+export function lookupGuest(endpoint: string, code: string): Promise<Lookup> {
+  const key = `${endpoint}|${code}`;
+  let pending = guestCache.get(key);
+  if (!pending) {
+    pending = lookupRsvp(endpoint, { c: code }).catch(() => ({ ok: false }) as Lookup);
+    guestCache.set(key, pending);
+  }
+  return pending;
+}
+
+// Nome do par para a saudação da capa. A planilha às vezes traz "marido (Junior)":
+// nesse caso vale o nome entre parênteses, não a palavra genérica.
+export function partnerName(raw: string | null | undefined): string {
+  const value = String(raw ?? '').trim();
+  const inside = value.match(/^(?:marido|esposa|mulher|noivo|noiva|acompanhante)\s*\((.+)\)\s*$/i);
+  if (inside) return inside[1].trim();
+  return value.replace(/\s*\(.*\)\s*$/, '').trim();
+}

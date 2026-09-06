@@ -44,7 +44,7 @@ for reference in page.references:
     assert target.is_file(), f'Missing public asset: {target}'
     count += 1
 assert count >= 6
-for path in ('images/flores.webp', 'images/flor-central.jpg', 'casamento-luis-raquel.ics', 'Convite-Luis-e-Raquel.pdf'):
+for path in ('images/flores.webp', 'images/flor-central.jpg', 'casamento-luis-raquel.ics'):
     assert PREFIX + '/' + path in html
 assert hashlib.sha256((DIST / 'og-capa.jpg').read_bytes()).hexdigest() == 'a057072336f00df446e33022f5c441095d910b99d2afa15674ee947cb4015d92'
 assert hashlib.sha256((DIST / 'og-capa-1080-v3.jpg').read_bytes()).hexdigest() == '729556d1b07e3a2da116fbe603cec5eadc2c8152bc44496d641183aa8bede363'

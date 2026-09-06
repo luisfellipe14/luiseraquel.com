@@ -1185,3 +1185,428 @@ footer.torn-top::before {
     display: none;
   }
 }
+
+/* ===== Rodada 3 (06/09/2026): convite lacrado, saudação na capa, desenhos que se traçam ===== */
+.folded {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 1.1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.folded-inner {
+  min-height: 0;
+  /* clip corta sem virar container rolável: âncoras seguem rolando a página */
+  overflow: hidden;
+  overflow: clip;
+}
+.is-sealed .folded {
+  grid-template-rows: 0fr;
+}
+.is-sealed .thread {
+  display: none;
+}
+.thread {
+  overflow: hidden;
+}
+.seal {
+  background: none;
+  border: 0;
+  padding: 6px;
+  color: var(--cream);
+  font: inherit;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.seal-ring {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c3ac7a;
+  box-shadow:
+    inset 0 0 0 4px #29281f,
+    inset 0 0 0 5px #c3ac7a88,
+    0 6px 18px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(circle at 35% 30%, #4b4532, #2b281d 72%);
+  transition:
+    transform 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.7s;
+  animation: seal-pulse 3.2s ease-in-out infinite;
+}
+.seal-mono {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+}
+.seal-mono i {
+  font-family: var(--font-script), cursive;
+  font-style: normal;
+  color: #c3ac7a;
+  margin: 0 3px;
+}
+.seal-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f7f1e455;
+  padding-bottom: 4px;
+}
+.seal:hover .seal-ring {
+  transform: scale(1.05);
+}
+.is-open .seal-ring {
+  animation: none;
+  transform: rotate(-14deg) scale(0.88);
+  opacity: 0.55;
+}
+@keyframes seal-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+.hero-greeting {
+  font-size: 20px;
+  margin-bottom: 14px;
+  color: #efe7d6;
+  max-width: 92vw;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+.written {
+  display: inline-block;
+  font-family: var(--font-script), cursive;
+  font-weight: 400;
+  font-size: 1.9em;
+  line-height: 1;
+  padding: 0 0.1em;
+  vertical-align: -0.1em;
+  clip-path: inset(-0.2em 0 -0.2em 0);
+  animation: write 1.9s cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+.hero-greeting .written {
+  color: #f7f1e4;
+  font-size: 2.2em;
+  animation-delay: 0.6s;
+}
+.doodle {
+  position: absolute;
+  color: #6a6455;
+  pointer-events: none;
+}
+.doodle path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+}
+.is-visible .doodle path {
+  animation: draw 1.5s ease-out forwards;
+  animation-delay: calc(var(--i) * 0.22s + 0.3s);
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.waiting {
+  position: relative;
+}
+.doodle-sprig {
+  width: 56px;
+  height: 84px;
+  left: calc(50% - 330px);
+  top: -6px;
+  color: #5f6a4c;
+}
+.rsvp-copy {
+  position: relative;
+}
+.doodle-grass {
+  width: 170px;
+  height: 52px;
+  left: 0;
+  bottom: -70px;
+  color: #b9c39a;
+}
+.gifts-copy {
+  position: relative;
+}
+.doodle-birds {
+  width: 110px;
+  height: 36px;
+  right: 0;
+  top: -40px;
+  color: #6a6455;
+}
+@media (max-width: 760px) {
+  .doodle-sprig {
+    left: 4px;
+    top: -30px;
+    width: 42px;
+    height: 64px;
+  }
+  .doodle-grass {
+    bottom: -56px;
+    width: 130px;
+  }
+  .doodle-birds {
+    top: -34px;
+    width: 84px;
+  }
+}
+@media (max-width: 620px) {
+  /* nome de família longo ganha a própria linha em vez de esticar a saudação */
+  .hero-greeting {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  .hero-greeting .written {
+    display: block;
+    font-size: 2em;
+    margin-top: 2px;
+  }
+}
+
+/* ===== Rodada 4 (06/09/2026): cartão para guardar, mural de recados, mapa à mão ===== */
+.keepsake-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.keepsake-link:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.keepsake-failed {
+  font-size: 13px;
+  opacity: 0.8;
+}
+.keepsake-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  border: 0;
+  padding: 20px;
+  background: transparent;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+.keepsake-dialog::backdrop {
+  background: rgba(20, 19, 14, 0.9);
+}
+.keepsake-dialog:not([open]) {
+  display: none;
+}
+.keepsake-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-height: 100%;
+}
+.keepsake-card img {
+  max-height: 70vh;
+  max-width: min(92vw, 420px);
+  height: auto;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+.keepsake-card p {
+  color: var(--cream);
+  font-size: 14px;
+  text-align: center;
+  max-width: 380px;
+}
+.keepsake-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.keepsake-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 22px;
+  background: var(--cream);
+  color: var(--olive);
+  font-size: 15px;
+}
+.keepsake-close {
+  background: none;
+  border: 0;
+  color: var(--cream);
+  font: inherit;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+/* mural */
+.mural {
+  background: #e4dccb;
+  text-align: center;
+}
+.mural-heading h2 {
+  font-size: clamp(34px, 3.6vw, 52px);
+  line-height: 1.2;
+  margin-top: 14px;
+}
+.mural-heading h2 em {
+  font-family: var(--font-script), cursive;
+  font-size: 1.45em;
+  font-style: normal;
+}
+.mural-slips {
+  list-style: none;
+  padding: 0;
+  margin: 54px auto 0;
+  max-width: 1040px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 26px;
+}
+.mural-slip {
+  position: relative;
+  background: #faf6ed;
+  padding: 30px 24px 22px;
+  text-align: left;
+  transform: rotate(var(--tilt, 0deg));
+  box-shadow: 0 8px 20px rgba(53, 59, 44, 0.12);
+}
+.mural-slip::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 84px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: rgba(206, 194, 170, 0.75);
+  box-shadow: 0 2px 4px rgba(53, 59, 44, 0.12);
+}
+.mural-text {
+  font-family: var(--font-hand), cursive;
+  font-size: 25px;
+  line-height: 1.45;
+  color: #3f4633;
+}
+.mural-name {
+  margin-top: 14px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+/* mapa desenhado à mão */
+.mapa {
+  margin: 26px 0 10px;
+  max-width: 420px;
+}
+.mapa svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.mapa path,
+.mapa circle {
+  fill: none;
+  stroke: #6a6455;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 460;
+  stroke-dashoffset: 460;
+}
+.mapa .mapa-quadras path {
+  stroke: #b3a992;
+}
+.mapa .mapa-arvores path {
+  stroke: #7d8a63;
+}
+.mapa .mapa-caminho path {
+  stroke: #b9654b;
+  stroke-dasharray: 7 9;
+  stroke-dashoffset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease 1.6s;
+}
+.mapa .mapa-lugar path {
+  stroke: #3f4633;
+  stroke-width: 1.8;
+}
+.mapa text {
+  fill: #6a6455;
+  font-family: var(--font-hand), cursive;
+  font-size: 19px;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.mapa .mapa-casa {
+  fill: #3f4633;
+  font-size: 21px;
+  text-anchor: middle;
+}
+.mapa .mapa-n {
+  font-size: 17px;
+  text-anchor: middle;
+}
+.is-visible .mapa path:not(.mapa-caminho path),
+.is-visible .mapa circle {
+  animation: draw 1.6s ease-out forwards;
+}
+.is-visible .mapa .mapa-quadras path {
+  animation-delay: 0.5s;
+}
+.is-visible .mapa .mapa-arvores path,
+.is-visible .mapa .mapa-bussola path,
+.is-visible .mapa .mapa-bussola circle {
+  animation-delay: 0.9s;
+}
+.is-visible .mapa .mapa-lugar path {
+  animation-delay: 1.2s;
+}
+.is-visible .mapa .mapa-caminho path {
+  opacity: 0.9;
+}
+.is-visible .mapa text {
+  opacity: 1;
+  transition-delay: 1.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mapa path,
+  .mapa circle {
+    stroke-dashoffset: 0;
+  }
+  .mapa text,
+  .mapa .mapa-caminho path {
+    opacity: 1;
+  }
+}
