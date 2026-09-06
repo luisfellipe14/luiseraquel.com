@@ -1,7 +1,7 @@
 // Confirmação de presença gravada numa planilha do Google (Apps Script publicado como App da Web).
 // Com `siteConfig.rsvpEndpoint` vazio o site segue só com o WhatsApp; com a URL /exec preenchida,
 // o formulário grava na planilha, lembra a confirmação no aparelho e reconhece o convidado
-// por telefone (`?tel=`) ou pelo código do link da família (`?c=`).
+// por telefone (`?tel=`) ou pelo código do link da família (`?c=` no site, enviado como `cod` ao script).
 export type RsvpInput = {
   nome: string;
   telefone?: string;
@@ -76,7 +76,7 @@ export async function lookupRsvp(
   const url = new URL(endpoint);
   const tel = normalizePhone(query.tel ?? '');
   if (tel) url.searchParams.set('tel', tel);
-  if (query.c) url.searchParams.set('c', query.c);
+  if (query.c) url.searchParams.set('cod', query.c); // o Google rejeita o parâmetro "c" na URL do script
   if (!tel && !query.c) throw new Error('Informe o telefone ou o código.');
   const response = await fetchImpl(url.toString(), { redirect: 'follow' });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

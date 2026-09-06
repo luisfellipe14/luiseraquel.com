@@ -108,6 +108,9 @@ await test('posts without custom headers, follows the Apps Script redirect and r
   const found = await lookupRsvp('https://script.example/exec', { tel: '65 98109-8383' }, fakeFetch);
   assert.equal(found.ok, true);
   assert.equal(new URL(calls[1].url).searchParams.get('tel'), '5565981098383');
+  await lookupRsvp('https://script.example/exec', { c: 'abc123' }, fakeFetch);
+  assert.equal(new URL(calls[2].url).searchParams.get('cod'), 'abc123');
+  assert.equal(new URL(calls[2].url).searchParams.get('c'), null);
   await assert.rejects(
     submitRsvp('https://script.example/exec', { nome: 'x', pessoas: 1 }, (async () => new Response('', { status: 500 })) as unknown as typeof fetch),
     /HTTP 500/,
