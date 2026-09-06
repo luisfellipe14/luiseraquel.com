@@ -5,6 +5,9 @@ import {
   ArrowDown,
   ArrowUpRight,
   CalendarDays,
+  Check,
+  Copy,
+  Gift,
   MapPin,
   MessageCircle,
   Heart,
@@ -13,6 +16,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MAP_URL, remaining, whatsappUrl } from '@/lib/invitation';
+import {
+  PIX_DESCRIPTION,
+  PIX_KEY,
+  PIX_KEY_DISPLAY,
+  PIX_PAYLOAD,
+  PIX_RECEIVER,
+  copyText,
+} from '@/lib/pix';
 import { siteConfig } from '@/site.config';
 
 function Countdown() {
@@ -136,6 +147,62 @@ function Rsvp() {
         </output>
       )}
     </form>
+  );
+}
+function Pix() {
+  const [copied, setCopied] = useState<'payload' | 'key' | ''>('');
+  const [failed, setFailed] = useState(false);
+  async function copy(kind: 'payload' | 'key') {
+    const ok = await copyText(kind === 'payload' ? PIX_PAYLOAD : PIX_KEY);
+    setFailed(!ok);
+    setCopied(ok ? kind : '');
+    if (ok) window.setTimeout(() => setCopied(''), 2500);
+  }
+  return (
+    <div className="pix-card">
+      <Image
+        className="pix-qr"
+        src={`${siteConfig.basePath}/images/pix-qr.svg`}
+        alt="QR code do Pix de Luis e Raquel"
+        width="200"
+        height="200"
+        loading="lazy"
+        unoptimized
+      />
+      <div className="pix-details">
+        <p className="pix-label">Chave Pix (celular)</p>
+        <p className="pix-key">{PIX_KEY_DISPLAY}</p>
+        <p className="pix-meta">
+          {PIX_RECEIVER}
+          <br />
+          {PIX_DESCRIPTION}
+        </p>
+        <div className="pix-actions">
+          <Button
+            type="button"
+            className="pix-button"
+            onClick={() => copy('payload')}
+          >
+            {copied === 'payload' ? <Check size={16} /> : <Copy size={16} />}
+            {copied === 'payload' ? 'Copiado' : 'Copiar Pix copia e cola'}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="pix-button secondary-action"
+            onClick={() => copy('key')}
+          >
+            {copied === 'key' ? <Check size={16} /> : <Copy size={16} />}
+            {copied === 'key' ? 'Copiada' : 'Copiar só a chave'}
+          </Button>
+        </div>
+        {failed && (
+          <p className="form-error" role="alert">
+            Não deu para copiar automaticamente. Selecione a chave acima e copie.
+          </p>
+        )}
+      </div>
+    </div>
   );
 }
 export default function Invitation() {
@@ -296,6 +363,43 @@ export default function Invitation() {
           <div className="waiting" data-reveal>
             <p className="eyebrow">Cada dia mais perto</p>
             <Countdown />
+          </div>
+        </section>
+        <section
+          className="gifts section-pad"
+          id="presentes"
+          aria-labelledby="gifts-title"
+        >
+          <div className="gifts-grid">
+            <Image
+              className="gifts-flower"
+              src={`${siteConfig.basePath}/images/flor-central.jpg`}
+              alt="Botão de flor em tons sépia"
+              width="640"
+              height="800"
+              loading="lazy"
+              data-reveal
+            />
+            <div className="gifts-copy" data-reveal>
+              <p className="eyebrow">
+                <Gift size={14} strokeWidth={1.5} aria-hidden="true" /> Presentes
+              </p>
+              <h2 id="gifts-title">
+                Sua presença é o nosso
+                <br />
+                <em>maior presente</em>
+              </h2>
+              <p>
+                Se quiser nos ajudar a começar essa nova fase, deixamos aqui a
+                nossa chave Pix. Qualquer valor chega com muito carinho.
+              </p>
+              <p className="gifts-hint">
+                Aponte a câmera para o QR ou copie o código e cole no app do seu
+                banco em <strong>Pix copia e cola</strong>. O valor é livre; a
+                descrição que aparece no pagamento é “{PIX_DESCRIPTION}”.
+              </p>
+              <Pix />
+            </div>
           </div>
         </section>
         <section

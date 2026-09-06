@@ -50,3 +50,15 @@ await test('exports an event at 19h30 Cuiaba in interoperable UTC without an inv
   assert.ok(!ics.includes('DTEND'));
   assert.ok(ics.endsWith('END:VCALENDAR\r\n'));
 });
+
+import { PIX_PAYLOAD, PIX_KEY, PIX_DESCRIPTION, crc16 } from '../lib/pix.ts';
+
+await test('keeps the bank-generated Pix payload intact (CRC, key and description)', () => {
+  assert.equal(crc16(PIX_PAYLOAD.slice(0, -4)), PIX_PAYLOAD.slice(-4));
+  assert.equal(PIX_PAYLOAD.slice(0, 6), '000201');
+  assert.equal(PIX_PAYLOAD.slice(-8, -4), '6304');
+  assert.match(PIX_PAYLOAD, /br\.gov\.bcb\.pix/);
+  assert.match(PIX_PAYLOAD, new RegExp(PIX_KEY.replace('+', '\\+')));
+  assert.match(PIX_PAYLOAD, new RegExp(PIX_DESCRIPTION));
+  assert.ok(PIX_PAYLOAD.length <= 512);
+});
