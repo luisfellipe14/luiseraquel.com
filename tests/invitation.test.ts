@@ -131,3 +131,19 @@ await test('remembers the confirmation on the device and survives a broken stora
   assert.doesNotThrow(() => saveConfirmation({ nome: 'Ana', pessoas: 1, data: '' }, broken));
   assert.equal(readConfirmation(null), null);
 });
+
+import { ease } from '../lib/scroll.ts';
+
+await test('eases the scroll from a standstill to a standstill and never leaves 0..1', () => {
+  assert.equal(ease(0), 0);
+  assert.equal(ease(1), 1);
+  assert.equal(ease(0.5), 0.5);
+  assert.equal(ease(-3), 0);
+  assert.equal(ease(9), 1);
+  let previous = -1;
+  for (let i = 0; i <= 20; i += 1) {
+    const value = ease(i / 20);
+    assert.ok(value >= previous, 'a rolagem nunca volta atrás');
+    previous = value;
+  }
+});

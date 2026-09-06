@@ -116,3 +116,15 @@ export function clearConfirmation(store: StorageLike | null = storage()): void {
     // idem
   }
 }
+
+// A capa e o formulário perguntam pelo mesmo código: uma consulta só, compartilhada.
+const guestCache = new Map<string, Promise<Lookup>>();
+export function lookupGuest(endpoint: string, code: string): Promise<Lookup> {
+  const key = `${endpoint}|${code}`;
+  let pending = guestCache.get(key);
+  if (!pending) {
+    pending = lookupRsvp(endpoint, { c: code }).catch(() => ({ ok: false }) as Lookup);
+    guestCache.set(key, pending);
+  }
+  return pending;
+}
