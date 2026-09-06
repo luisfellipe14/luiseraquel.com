@@ -1,3 +1,4 @@
 # Tasks
 
-- [ ] T011 — Prepare, validate and publish the root-domain export; verify domain ownership, apply the dedicated GitHub Pages DNS and validate HTTPS. External cache propagation is reported separately.
+- [x] T011 — Root-domain export published and independently reviewed; GitHub ownership verified; authoritative DNS, Google and Cloudflare return the four Pages IPv4 addresses; certificate approved for apex and www; HTTPS enforced. HTTP artifacts and direct TLS were verified, and the user confirmed the final domain opens. Local stale DNS cache was refreshed.
+- [x] T012 — Independent backup published at https://luisfellipe.com/convite-luis-raquel/ as explicitly requested; homepage and personal CNAME untouched. Exact approved T010 artifact, 35 blobs, added under one folder. The definitive repo was renamed to luiseraquel.com with unchanged ID/domain/certificate to release the conflicting route. Backup verified HTTPS200 without redirect, 15 local assets, own metadata and exact PDF/ICS/B bytes.

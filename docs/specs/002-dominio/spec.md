@@ -5,7 +5,7 @@
 O usuário solicitou a publicação no GitHub para associar `luiseraquel.com` e perguntou sobre a etapa definitiva. A sessão autenticada permite concluir a configuração.
 
 - WHEN o convidado abre `https://luiseraquel.com/`, THE GitHub Pages SHALL servir o convite aprovado na raiz, com recursos locais, PDF, agenda e confirmação funcionais.
-- THE configuração SHALL limitar-se ao domínio do casamento e ao repositório `luisfellipe14/convite-luis-raquel`.
+- THE configuração SHALL limitar-se ao domínio do casamento e ao repositório `luisfellipe14/luiseraquel.com` (nome anterior `convite-luis-raquel`; mesmo ID). A ordem posterior T012 autoriza somente a pasta de backup `convite-luis-raquel/` no repositório pessoal.
 - THE prévia SHALL manter o JPEG B de 1080×1920 e 531730 bytes validado pelo usuário em iPhone e Android.
 - THE domínio SHALL possuir a verificação TXT do GitHub, associação Pages, DNS autoritativo correto e HTTPS válido; a entrega distinguirá configuração aplicada de caches externos pendentes.
 - THE publicação SHALL preservar o site pessoal e a hospedagem anterior durante a transição.

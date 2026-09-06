@@ -4,6 +4,10 @@ Convite do casamento em 14 de novembro de 2026, às 19h30, na Casa Nonna, Cuiab�
 
 Site principal: https://luiseraquel.com
 
+Backup independente: https://luisfellipe.com/convite-luis-raquel/
+
+O repositório principal é `luisfellipe14/luiseraquel.com`. O backup estático vive somente na pasta `convite-luis-raquel/` do repositório pessoal `luisfellipe14/luisfellipe14.github.io`, com metadados e recursos próprios. Atualizações futuras precisam publicar as duas versões se o backup também tiver de receber a alteração.
+
 Esta cópia pública contém o código e os arquivos atuais do convite. O histórico de trabalho anterior não integra este repositório.
 
 ## Desenvolvimento
