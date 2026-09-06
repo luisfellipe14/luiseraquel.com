@@ -35,6 +35,8 @@ import {
   copyText,
 } from '@/lib/pix';
 import { siteConfig } from '@/site.config';
+import { Marks } from '@/components/marks';
+import { Petals } from '@/components/petals';
 import { Thread } from '@/components/thread';
 import { WindImage } from '@/components/wind-image';
 
@@ -63,7 +65,15 @@ function Countdown() {
         ] as const
       ).map(([key, label]) => (
         <div key={key}>
-          <span>{time ? String(time[key]).padStart(2, '0') : '—'}</span>
+          <span>
+            {time ? (
+              <em className="tick" key={time[key]}>
+                {String(time[key]).padStart(2, '0')}
+              </em>
+            ) : (
+              '—'
+            )}
+          </span>
           <small>{label}</small>
         </div>
       ))}
@@ -192,7 +202,7 @@ function Rsvp() {
         <output className="form-status confirmed">
           <Check aria-hidden="true" />
           <span>
-            Presença confirmada, <strong>{done.nome}</strong>
+            Presença confirmada, <strong className="written">{done.nome}</strong>
             {done.pessoas > 1 ? ` (${done.pessoas} pessoas)` : ''}
             {done.data ? `, em ${done.data}` : ''}. Obrigado!
           </span>
@@ -468,6 +478,7 @@ export default function Invitation() {
             amplitude={0.0055}
           />
           <div className="hero-shade" />
+          <Petals />
           <header className="topbar">
             <a
               href="#inicio"
@@ -507,6 +518,7 @@ export default function Invitation() {
           </div>
         </section>
         <section id="convite" className="blessing section-pad torn-top">
+          <Marks set="blessing" />
           <h2 className="sr-only">Com a bênção de Deus e de nossos pais</h2>
           <div className="blessing-composition" data-reveal>
             <p className="blessing-side">
@@ -547,6 +559,7 @@ export default function Invitation() {
           id="grande-dia"
           aria-labelledby="day-title"
         >
+          <Marks set="day" />
           <div className="day-heading" data-reveal>
             <p className="eyebrow">Reserve esse dia</p>
             <h2 id="day-title">Nosso grande dia</h2>
@@ -596,6 +609,7 @@ export default function Invitation() {
           id="presenca"
           aria-labelledby="rsvp-title"
         >
+          <Marks set="rsvp" />
           <div className="rsvp-copy" data-reveal>
             <p className="eyebrow">Você faz parte desse momento</p>
             <h2 id="rsvp-title">
@@ -624,6 +638,7 @@ export default function Invitation() {
           id="presentes"
           aria-labelledby="gifts-title"
         >
+          <Marks set="gifts" />
           <div className="gifts-grid">
             <div data-reveal>
               <WindImage
