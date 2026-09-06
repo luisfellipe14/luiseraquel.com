@@ -366,6 +366,34 @@ export default function Invitation() {
           </div>
         </section>
         <section
+          className="rsvp section-pad"
+          id="presenca"
+          aria-labelledby="rsvp-title"
+        >
+          <div className="rsvp-copy" data-reveal>
+            <p className="eyebrow">Você faz parte desse momento</p>
+            <h2 id="rsvp-title">
+              Vamos celebrar
+              <br />
+              <em>juntos?</em>
+            </h2>
+            <p>
+              Ter você com a gente
+              <br />
+              tornará esse dia ainda mais especial.
+            </p>
+            <div className="rsvp-signature">
+              Com carinho,
+              <br />
+              <span>Luis e Raquel</span>
+            </div>
+          </div>
+          <div className="rsvp-panel" data-reveal>
+            <h3>Confirme sua presença</h3>
+            <Rsvp />
+          </div>
+        </section>
+        <section
           className="gifts section-pad"
           id="presentes"
           aria-labelledby="gifts-title"
@@ -400,34 +428,6 @@ export default function Invitation() {
               </p>
               <Pix />
             </div>
-          </div>
-        </section>
-        <section
-          className="rsvp section-pad"
-          id="presenca"
-          aria-labelledby="rsvp-title"
-        >
-          <div className="rsvp-copy" data-reveal>
-            <p className="eyebrow">Você faz parte desse momento</p>
-            <h2 id="rsvp-title">
-              Vamos celebrar
-              <br />
-              <em>juntos?</em>
-            </h2>
-            <p>
-              Ter você com a gente
-              <br />
-              tornará esse dia ainda mais especial.
-            </p>
-            <div className="rsvp-signature">
-              Com carinho,
-              <br />
-              <span>Luis e Raquel</span>
-            </div>
-          </div>
-          <div className="rsvp-panel" data-reveal>
-            <h3>Confirme sua presença</h3>
-            <Rsvp />
           </div>
         </section>
       </main>
