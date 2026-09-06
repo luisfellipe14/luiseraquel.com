@@ -27,16 +27,23 @@ export function WindImage({ src, alt, width, height, className, priority, focusY
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let stop: (() => void) | null = null;
     let cancelled = false;
-    void image
-      .decode()
-      .catch(() => {})
-      .then(() => {
-        if (cancelled || !image.naturalWidth) return;
-        stop = startWind(canvas, image, { focusY, amplitude, speed, maxDpr });
-        setReady(true);
-      });
+    // as fotos de baixo carregam sob demanda: espera o load, depois o decode, depois sopra
+    const begin = () => {
+      if (cancelled || !image.naturalWidth) return;
+      void image
+        .decode()
+        .catch(() => {})
+        .then(() => {
+          if (cancelled || !image.naturalWidth) return;
+          stop = startWind(canvas, image, { focusY, amplitude, speed, maxDpr });
+          setReady(true);
+        });
+    };
+    if (image.complete && image.naturalWidth) begin();
+    else image.addEventListener('load', begin, { once: true });
     return () => {
       cancelled = true;
+      image.removeEventListener('load', begin);
       stop?.();
     };
   }, [focusY, amplitude, speed, maxDpr]);
