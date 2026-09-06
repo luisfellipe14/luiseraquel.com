@@ -148,7 +148,12 @@ function Rsvp() {
             saveConfirmation(value);
             setDone(value);
           } else if (found.convidado?.nome) {
-            setGreeting(found.convidado.nome);
+            const par = partnerName(found.convidado.acompanhante);
+            const casa = par ? `${found.convidado.nome} e ${par}` : found.convidado.nome;
+            setGreeting(casa);
+            // preenche só o que a pessoa ainda não digitou
+            setName((atual) => atual || casa);
+            setPeople((atual) => (par && atual === '1' ? '2' : atual));
           }
         })
         .catch(() => {});
@@ -356,7 +361,11 @@ function Rsvp() {
         rows={3}
         value={note}
         onChange={(event) => setNote(event.target.value)}
+        aria-describedby="note-hint"
       />
+      <p className="field-hint" id="note-hint">
+        Com o seu primeiro nome, seu recado pode aparecer no mural do site.
+      </p>
       {fallback ? (
         <>
           <p className="form-instruction">
