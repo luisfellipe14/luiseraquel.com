@@ -27,4 +27,7 @@ for (const file of ['index.html', 'index.rsc', '404.html']) {
   cpSync(join(client, file), join(output, file));
 }
 writeFileSync(join(output, '.nojekyll'), '');
+if (siteConfig.basePath === '') {
+  writeFileSync(join(output, 'CNAME'), `${new URL(siteConfig.origin).hostname}\n`);
+}
 console.log('GitHub Pages export prepared in dist/pages');

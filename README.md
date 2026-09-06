@@ -20,11 +20,11 @@ python tests/pages_contract.py
 
 O resultado para publicação fica em `dist/pages`. O build prepara automaticamente a estrutura de arquivos que corresponde ao prefixo da página. A publicação GitHub Pages usa a branch `gh-pages`, na raiz, sem Jekyll. A branch `main` contém o código-fonte.
 
-`site.config.ts` define o domínio e o prefixo dos endereços. Enquanto o convite usar uma página de projeto, o prefixo é `/convite-luis-raquel`; o GitHub herda `luisfellipe.com` do site pessoal da conta. Este repositório não altera aquele site nem seu DNS.
+`site.config.ts` define `https://luiseraquel.com` e o prefixo vazio. O convite usa a raiz do domínio dedicado; este repositório não altera o site pessoal nem seu DNS. O arquivo `CNAME` é gerado automaticamente no artefato de publicação.
 
 ## Domínio próprio
 
-Antes de migrar `luiseraquel.com`, valide esta cópia; verifique o domínio no GitHub; ajuste `site.config.ts` para o domínio definitivo e prefixo vazio; reconstrua; configure o domínio em Pages; só então altere DNS e confira HTTPS. A configuração atual de `luiseraquel.com` permanece na hospedagem existente durante os testes.
+O domínio dedicado usa a verificação de propriedade TXT do GitHub, os quatro registros A do GitHub Pages e `www` como CNAME direto para `luisfellipe14.github.io`. A associação em Pages deve preceder o apontamento DNS. A ativação HTTPS e a propagação dos caches externos são verificadas separadamente; o procedimento está em `docs/specs/002-dominio/spec.md`.
 
 ## Confirmação de presença
 

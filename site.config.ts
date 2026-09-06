@@ -1,6 +1,5 @@
-// GitHub project Pages inherits the domain of the existing user site.
-// For a future dedicated domain, set basePath to '' and origin to that domain.
+// Dedicated wedding domain; all public assets resolve from the site root.
 export const siteConfig = {
-  basePath: '/convite-luis-raquel',
-  origin: 'https://luisfellipe.com',
+  basePath: '',
+  origin: 'https://luiseraquel.com',
 };

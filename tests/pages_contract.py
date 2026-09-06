@@ -6,8 +6,8 @@ import hashlib
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist/pages'
-PREFIX = '/convite-luis-raquel'
-ORIGIN = 'https://luisfellipe.com'
+PREFIX = ''
+ORIGIN = 'https://luiseraquel.com'
 
 class Page(HTMLParser):
     def __init__(self, html):
@@ -27,6 +27,7 @@ class Page(HTMLParser):
 assert (DIST / 'index.html').exists(), 'Build the Pages export first'
 assert (DIST / '.nojekyll').is_file(), 'Pages must serve _next without Jekyll filtering'
 assert '*.pdf binary' in (DIST / '.gitattributes').read_text()
+assert (DIST / 'CNAME').read_text() == 'luiseraquel.com\n'
 html = (DIST / 'index.html').read_text(encoding='utf-8')
 page = Page(html)
 assert page.meta['og:url'] == ORIGIN + PREFIX
