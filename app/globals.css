@@ -920,3 +920,65 @@ footer > a {
     justify-content: center;
   }
 }
+
+/* Confirmação registrada na planilha (06/09/2026) */
+.rsvp-form .field-row {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: 14px;
+}
+.rsvp-form .field-row label {
+  margin-top: 20px;
+}
+.rsvp-greeting {
+  font-size: 17px;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.rsvp-form .recipient:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.form-status.confirmed {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-top: 0;
+  padding: 16px;
+  margin-top: 0;
+  background: #e9e2d0;
+  color: var(--foreground);
+  font-size: 16px;
+}
+.form-status.confirmed svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: #353f2b;
+}
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-top: 16px;
+  font: inherit;
+  font-size: 15px;
+  color: #353f2b;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.link-button.inline {
+  margin: 0;
+  font-size: inherit;
+}
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media (max-width: 480px) {
+  .rsvp-form .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

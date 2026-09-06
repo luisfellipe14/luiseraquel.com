@@ -34,6 +34,10 @@ O domínio dedicado usa a verificação de propriedade TXT do GitHub, os quatro 
 
 O convidado informa nome e recado, escolhe Luis ou Raquel e abre o WhatsApp com a mensagem pronta. Precisa tocar **Enviar** no WhatsApp. O site não envia mensagens automaticamente e não armazena os dados do formulário.
 
+## Confirmação registrada na planilha (opcional)
+
+Com `rsvpEndpoint` vazio em `site.config.ts`, a confirmação segue só pelo WhatsApp. Com a URL `/exec` do Apps Script (código e passo a passo em `pessoal/casamento-convite/rsvp/` no hub), o formulário passa a pedir nome, WhatsApp, quantas pessoas e recado; grava na planilha (`lib/rsvp.ts`), lembra a confirmação no aparelho (localStorage) e reconhece quem volta por outro aparelho pelo WhatsApp ou pelo código do link da família (`?c=abc123`). Se a planilha falhar, o formulário cai no WhatsApp. O relatório dos noivos é a aba `resumo` da planilha.
+
 ## Presentes (Pix)
 
 A seção `#presentes` mostra o QR e o botão de **Pix copia e cola** com o BR Code estático gerado no app do banco em 06/09/2026 (`lib/pix.ts`; sem valor fixo; descrição "Presente de casamento Luis e Raquel"). O QR em `public/images/pix-qr.svg` foi gerado a partir do mesmo código; o teste confere o CRC do código. Para trocar a chave, gere um novo código no banco, substitua `PIX_PAYLOAD` e regenere o QR.
