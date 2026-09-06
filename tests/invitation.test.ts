@@ -157,3 +157,39 @@ await test('reads the partner name even when the sheet says "marido (Junior)"', 
   assert.equal(partnerName(''), '');
   assert.equal(partnerName(null), '');
 });
+
+import { cleanRecados, fetchMural, firstName } from '../lib/mural.ts';
+
+await test('shows only first names and drops empty or malformed notes on the wall', () => {
+  assert.equal(firstName('  Ana   Souza Lima '), 'Ana');
+  assert.deepEqual(
+    cleanRecados([
+      { nome: 'Ana Souza', recado: ' Que dia lindo! ' },
+      { nome: '', recado: 'sem nome' },
+      { nome: 'Bruno', recado: '   ' },
+      { nome: 'Caio', recado: { oi: 1 } },
+      'lixo',
+    ]),
+    [{ nome: 'Ana', recado: 'Que dia lindo!' }],
+  );
+  assert.deepEqual(cleanRecados(null), []);
+  assert.equal(cleanRecados(Array.from({ length: 30 }, () => ({ nome: 'Ana', recado: 'oi' }))).length, 12);
+});
+await test('asks the sheet for the wall and never breaks the page when it fails', async () => {
+  const seen: string[] = [];
+  const ok = (async (url: string) => {
+    seen.push(url);
+    return new Response(JSON.stringify({ ok: true, recados: [{ nome: 'Ana Souza', recado: 'oi' }] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', ok), [{ nome: 'Ana', recado: 'oi' }]);
+  assert.equal(new URL(seen[0]).searchParams.get('mural'), '1');
+  const boom = (async () => {
+    throw new Error('offline');
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', boom), []);
+  const bad = (async () => new Response('nope', { status: 500 })) as unknown as typeof fetch;
+  assert.deepEqual(await fetchMural('https://script.example/exec', bad), []);
+});

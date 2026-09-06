@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
-import { Pinyon_Script, Quattrocento, Roboto_Mono } from 'next/font/google';
+import {
+  Caveat,
+  Pinyon_Script,
+  Quattrocento,
+  Roboto_Mono,
+} from 'next/font/google';
 import './globals.css';
 import { siteConfig } from '@/site.config';
 const script = Pinyon_Script({
@@ -12,6 +17,12 @@ const serif = Quattrocento({
   weight: ['400', '700'],
   subsets: ['latin'],
   variable: '--font-serif',
+  display: 'swap',
+});
+const hand = Caveat({
+  weight: ['400', '600'],
+  subsets: ['latin'],
+  variable: '--font-hand',
   display: 'swap',
 });
 const mono = Roboto_Mono({
@@ -58,7 +69,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={`${script.variable} ${serif.variable} ${mono.variable}`}>
+      <body
+        className={`${script.variable} ${serif.variable} ${mono.variable} ${hand.variable}`}
+      >
         {children}
       </body>
     </html>

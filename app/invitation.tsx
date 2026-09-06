@@ -39,12 +39,15 @@ import {
 import { siteConfig } from '@/site.config';
 import { glideTo } from '@/lib/scroll';
 import { Doodle } from '@/components/doodle';
+import { Keepsake } from '@/components/keepsake';
+import { MapDrawing } from '@/components/map-drawing';
+import { Mural } from '@/components/mural';
 import { Marks } from '@/components/marks';
 import { Petals } from '@/components/petals';
 import { Thread } from '@/components/thread';
 import { WindImage } from '@/components/wind-image';
 
-function HeroGreeting() {
+function HeroGreeting({ onGuest }: { onGuest?: (name: string) => void }) {
   const [who, setWho] = useState('');
   useEffect(() => {
     const endpoint = siteConfig.rsvpEndpoint;
@@ -57,12 +60,14 @@ function HeroGreeting() {
       const nome = found.convidado?.nome || (found.confirmado ? found.nome : '');
       if (!nome) return;
       const par = partnerName(found.convidado?.acompanhante);
-      setWho(par ? `${nome} e ${par}` : nome);
+      const completo = par ? `${nome} e ${par}` : nome;
+      setWho(completo);
+      onGuest?.(completo);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [onGuest]);
   if (!who) return null;
   return (
     <p className="hero-greeting">
@@ -468,6 +473,7 @@ function Pix() {
 }
 export default function Invitation() {
   const [sealed, setSealed] = useState(true);
+  const [guest, setGuest] = useState('');
   const openTimer = useRef<number>(0);
   function openInvitation(scrollTo?: string) {
     setSealed(false);
@@ -594,7 +600,7 @@ export default function Invitation() {
             </a>
           </header>
           <div className="hero-content">
-            <HeroGreeting />
+            <HeroGreeting onGuest={setGuest} />
             <p className="eyebrow hero-reveal">Nós vamos nos casar</p>
             <h1 id="couple-name" className="hero-reveal">
               <span>Luis</span>
@@ -698,6 +704,7 @@ export default function Invitation() {
                 <br />
                 Popular · Cuiabá, MT
               </p>
+              <MapDrawing />
               <a
                 className="text-link"
                 href={MAP_URL}
@@ -752,6 +759,7 @@ export default function Invitation() {
             <Rsvp />
           </div>
         </section>
+        <Mural />
         <section
           className="gifts section-pad torn-top"
           id="presentes"
@@ -800,9 +808,7 @@ export default function Invitation() {
       <footer className="torn-top">
         <span className="footer-names">Luis e Raquel</span>
         <span>14 de novembro de 2026</span>
-        <a href={`${siteConfig.basePath}/Convite-Luis-e-Raquel.pdf`} download>
-          Baixar convite em PDF <ArrowDown size={15} />
-        </a>
+        <Keepsake guest={guest} />
         <a href="#inicio">
           Voltar ao início <ArrowUpRight size={15} />
         </a>
