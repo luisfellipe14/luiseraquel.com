@@ -982,3 +982,112 @@ footer > a {
     gap: 0;
   }
 }
+
+/* ===== Prévia estética (06/09/2026): papel, bordas rasgadas, fio dourado, vento ===== */
+/* grão de papel sobre a página inteira */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.11;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 260px 260px;
+}
+/* bordas rasgadas: a seção seguinte "rasga" sobre a anterior */
+main {
+  position: relative;
+}
+.torn-top {
+  position: relative;
+}
+.torn-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -15px;
+  height: 18px;
+  z-index: 2;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-size: 600px 18px;
+  filter: drop-shadow(0 -1px 1.5px rgba(30, 24, 10, 0.28));
+}
+.blessing.torn-top::before,
+.gifts.torn-top::before {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='18' viewBox='0 0 600 18' preserveAspectRatio='none'><polygon fill='%23cec2aa' points='0,10.0 11,12.5 20,4.9 31,7.0 55,10.4 73,9.2 93,3.1 119,9.6 135,5.6 152,6.5 175,11.4 198,8.9 222,2.7 236,12.8 248,4.8 260,12.1 271,4.1 287,9.1 296,2.6 319,12.1 339,6.6 365,4.1 374,7.7 393,10.4 409,8.8 434,4.9 443,13.7 458,8.5 469,11.1 493,4.3 507,8.8 525,6.5 535,12.2 557,5.5 571,7.7 585,2.8 596,3.7 600,10.0 600,18 0,18'/></svg>");
+}
+.day-section.torn-top::before {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='18' viewBox='0 0 600 18' preserveAspectRatio='none'><polygon fill='%23e4dccb' points='0,10.0 11,12.5 20,4.9 31,7.0 55,10.4 73,9.2 93,3.1 119,9.6 135,5.6 152,6.5 175,11.4 198,8.9 222,2.7 236,12.8 248,4.8 260,12.1 271,4.1 287,9.1 296,2.6 319,12.1 339,6.6 365,4.1 374,7.7 393,10.4 409,8.8 434,4.9 443,13.7 458,8.5 469,11.1 493,4.3 507,8.8 525,6.5 535,12.2 557,5.5 571,7.7 585,2.8 596,3.7 600,10.0 600,18 0,18'/></svg>");
+}
+.rsvp.torn-top::before {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='18' viewBox='0 0 600 18' preserveAspectRatio='none'><polygon fill='%23353f2b' points='0,10.0 11,12.5 20,4.9 31,7.0 55,10.4 73,9.2 93,3.1 119,9.6 135,5.6 152,6.5 175,11.4 198,8.9 222,2.7 236,12.8 248,4.8 260,12.1 271,4.1 287,9.1 296,2.6 319,12.1 339,6.6 365,4.1 374,7.7 393,10.4 409,8.8 434,4.9 443,13.7 458,8.5 469,11.1 493,4.3 507,8.8 525,6.5 535,12.2 557,5.5 571,7.7 585,2.8 596,3.7 600,10.0 600,18 0,18'/></svg>");
+}
+footer.torn-top::before {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='18' viewBox='0 0 600 18' preserveAspectRatio='none'><polygon fill='%23252d20' points='0,10.0 11,12.5 20,4.9 31,7.0 55,10.4 73,9.2 93,3.1 119,9.6 135,5.6 152,6.5 175,11.4 198,8.9 222,2.7 236,12.8 248,4.8 260,12.1 271,4.1 287,9.1 296,2.6 319,12.1 339,6.6 365,4.1 374,7.7 393,10.4 409,8.8 434,4.9 443,13.7 458,8.5 469,11.1 493,4.3 507,8.8 525,6.5 535,12.2 557,5.5 571,7.7 585,2.8 596,3.7 600,10.0 600,18 0,18'/></svg>");
+}
+.day-section.torn-top {
+  border-top: 0;
+}
+/* fio dourado */
+.thread {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: visible;
+}
+.thread path {
+  stroke: #c3ac7a;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+/* vento: o canvas cobre exatamente a foto */
+.wind {
+  display: block;
+  overflow: hidden;
+}
+.blessing-flower.wind,
+.gifts-flower.wind {
+  position: relative;
+}
+.wind .wind-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wind .wind-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.wind .wind-canvas.is-ready {
+  opacity: 1;
+}
+.hero-image.wind .wind-img {
+  object-position: center 53%;
+}
+.blessing-flower.wind,
+.gifts-flower.wind {
+  aspect-ratio: 4 / 5;
+}
+.blessing-flower.wind .wind-img,
+.gifts-flower.wind .wind-img {
+  aspect-ratio: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .thread,
+  .wind .wind-canvas {
+    display: none;
+  }
+}
