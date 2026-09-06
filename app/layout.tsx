@@ -22,7 +22,7 @@ const mono = Roboto_Mono({
 });
 const origin = `${siteConfig.origin}${siteConfig.basePath}`;
 const previewImage = {
-  url: `${origin}/og-capa.jpg`,
+  url: `${origin}/og-capa-1080-v3.jpg`,
   width: 1080,
   height: 1920,
   type: 'image/jpeg',

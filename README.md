@@ -34,4 +34,4 @@ O convidado informa nome e recado, escolhe Luis ou Raquel e abre o WhatsApp com 
 
 Depois de validar um build, publique somente o conteúdo de `dist/pages` na branch `gh-pages`; o arquivo `.nojekyll` já integra essa pasta. Nunca copie arquivos locais, credenciais ou o histórico de outra pasta.
 
-A capa original permanece com 1080×1920 e 775385 bytes. Testes de compressão ocorrem no host principal e não comprovam comportamento em aparelhos sem a verificação do usuário.
+A capa original permanece com 1080×1920 e 775385 bytes. A prévia social usa uma exportação da mesma arte em 1080×1920 e 531730 bytes, cujo link de teste B funcionou em iPhone e Android conforme confirmação do usuário. Isso não garante o resultado para todo aparelho, rede ou cache.

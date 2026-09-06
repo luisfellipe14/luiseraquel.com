@@ -30,7 +30,7 @@ assert '*.pdf binary' in (DIST / '.gitattributes').read_text()
 html = (DIST / 'index.html').read_text(encoding='utf-8')
 page = Page(html)
 assert page.meta['og:url'] == ORIGIN + PREFIX
-assert page.meta['og:image'] == ORIGIN + PREFIX + '/og-capa.jpg'
+assert page.meta['og:image'] == ORIGIN + PREFIX + '/og-capa-1080-v3.jpg'
 assert page.meta['og:image:width'] == '1080' and page.meta['og:image:height'] == '1920'
 count = 0
 for reference in page.references:
@@ -46,4 +46,5 @@ assert count >= 6
 for path in ('images/flores.webp', 'images/flor-central.jpg', 'casamento-luis-raquel.ics', 'Convite-Luis-e-Raquel.pdf'):
     assert PREFIX + '/' + path in html
 assert hashlib.sha256((DIST / 'og-capa.jpg').read_bytes()).hexdigest() == 'a057072336f00df446e33022f5c441095d910b99d2afa15674ee947cb4015d92'
+assert hashlib.sha256((DIST / 'og-capa-1080-v3.jpg').read_bytes()).hexdigest() == '729556d1b07e3a2da116fbe603cec5eadc2c8152bc44496d641183aa8bede363'
 print(f'PASS: {count} local references, social URLs and original cover in Pages export')
