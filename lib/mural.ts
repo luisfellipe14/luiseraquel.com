@@ -1,11 +1,21 @@
 export type Recado = { nome: string; recado: string };
 
-// Primeiro nome, para o mural não expor o nome completo de ninguém.
+// Tratamentos que sozinhos não são nome: "Pastor Felipe" e "Tia Lene" precisam da palavra seguinte.
+const TITULOS = new Set([
+  'pastor', 'pastora', 'pr', 'pra', 'obr', 'obreiro', 'obreira', 'irmao', 'irma',
+  'tia', 'tio', 'vo', 'vovo', 'dona', 'dom', 'seu', 'dr', 'dra', 'sr', 'sra', 'prof', 'profa',
+]);
+
+// Nome curto para o mural, sem expor o nome completo de ninguém.
 export function firstName(value: string): string {
-  return String(value ?? '')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .split(' ')[0] ?? '';
+  const words = String(value ?? '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  if (!words.length) return '';
+  const head = words[0]
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[^a-z]/g, '');
+  if (TITULOS.has(head) && words[1]) return `${words[0]} ${words[1]}`;
+  return words[0];
 }
 
 export function cleanRecados(rows: unknown, limit = 12): Recado[] {

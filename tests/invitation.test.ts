@@ -162,6 +162,11 @@ import { cleanRecados, fetchMural, firstName } from '../lib/mural.ts';
 
 await test('shows only first names and drops empty or malformed notes on the wall', () => {
   assert.equal(firstName('  Ana   Souza Lima '), 'Ana');
+  assert.equal(firstName('Pastor Felipe'), 'Pastor Felipe');
+  assert.equal(firstName('Tia Lene Ribeiro'), 'Tia Lene');
+  assert.equal(firstName('Obr. Yuri'), 'Obr. Yuri');
+  assert.equal(firstName('Vovó'), 'Vovó');
+  assert.equal(firstName(''), '');
   assert.deepEqual(
     cleanRecados([
       { nome: 'Ana Souza', recado: ' Que dia lindo! ' },
