@@ -35,6 +35,8 @@ import {
   copyText,
 } from '@/lib/pix';
 import { siteConfig } from '@/site.config';
+import { Thread } from '@/components/thread';
+import { WindImage } from '@/components/wind-image';
 
 function Countdown() {
   const [time, setTime] = useState<ReturnType<typeof remaining> | null>(null);
@@ -453,14 +455,17 @@ export default function Invitation() {
         Pular para o convite
       </a>
       <main>
+        <Thread />
         <section className="hero" id="inicio" aria-labelledby="couple-name">
-          <Image
+          <WindImage
             className="hero-image"
             src={`${siteConfig.basePath}/images/flores.webp`}
             alt=""
-            width="1280"
-            height="1920"
-            fetchPriority="high"
+            width={1280}
+            height={1920}
+            priority
+            focusY={0.53}
+            amplitude={0.0055}
           />
           <div className="hero-shade" />
           <header className="topbar">
@@ -501,7 +506,7 @@ export default function Invitation() {
             <span>Sábado · 19h30</span>
           </div>
         </section>
-        <section id="convite" className="blessing section-pad">
+        <section id="convite" className="blessing section-pad torn-top">
           <h2 className="sr-only">Com a bênção de Deus e de nossos pais</h2>
           <div className="blessing-composition" data-reveal>
             <p className="blessing-side">
@@ -510,13 +515,15 @@ export default function Invitation() {
               <br />
               Deus
             </p>
-            <Image
+            <WindImage
               className="blessing-flower"
               src={`${siteConfig.basePath}/images/flor-central.jpg`}
               alt="Botão de flor em tons sépia, como no convite original"
-              width="640"
-              height="800"
-              loading="lazy"
+              width={640}
+              height={800}
+              focusY={0.5}
+              amplitude={0.004}
+              speed={0.7}
             />
             <p className="blessing-side">
               E de
@@ -536,7 +543,7 @@ export default function Invitation() {
           </blockquote>
         </section>
         <section
-          className="day-section section-pad"
+          className="day-section section-pad torn-top"
           id="grande-dia"
           aria-labelledby="day-title"
         >
@@ -585,7 +592,7 @@ export default function Invitation() {
           </div>
         </section>
         <section
-          className="rsvp section-pad"
+          className="rsvp section-pad torn-top"
           id="presenca"
           aria-labelledby="rsvp-title"
         >
@@ -613,20 +620,23 @@ export default function Invitation() {
           </div>
         </section>
         <section
-          className="gifts section-pad"
+          className="gifts section-pad torn-top"
           id="presentes"
           aria-labelledby="gifts-title"
         >
           <div className="gifts-grid">
-            <Image
-              className="gifts-flower"
-              src={`${siteConfig.basePath}/images/flor-central.jpg`}
-              alt="Botão de flor em tons sépia"
-              width="640"
-              height="800"
-              loading="lazy"
-              data-reveal
-            />
+            <div data-reveal>
+              <WindImage
+                className="gifts-flower"
+                src={`${siteConfig.basePath}/images/flor-central.jpg`}
+                alt="Botão de flor em tons sépia"
+                width={640}
+                height={800}
+                focusY={0.5}
+                amplitude={0.004}
+                speed={0.6}
+              />
+            </div>
             <div className="gifts-copy" data-reveal>
               <p className="eyebrow">
                 <Gift size={14} strokeWidth={1.5} aria-hidden="true" /> Presentes
@@ -650,7 +660,7 @@ export default function Invitation() {
           </div>
         </section>
       </main>
-      <footer>
+      <footer className="torn-top">
         <span className="footer-names">Luis e Raquel</span>
         <span>14 de novembro de 2026</span>
         <a href={`${siteConfig.basePath}/Convite-Luis-e-Raquel.pdf`} download>
