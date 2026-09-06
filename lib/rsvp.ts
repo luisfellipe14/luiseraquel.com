@@ -128,3 +128,12 @@ export function lookupGuest(endpoint: string, code: string): Promise<Lookup> {
   }
   return pending;
 }
+
+// Nome do par para a saudação da capa. A planilha às vezes traz "marido (Junior)":
+// nesse caso vale o nome entre parênteses, não a palavra genérica.
+export function partnerName(raw: string | null | undefined): string {
+  const value = String(raw ?? '').trim();
+  const inside = value.match(/^(?:marido|esposa|mulher|noivo|noiva|acompanhante)\s*\((.+)\)\s*$/i);
+  if (inside) return inside[1].trim();
+  return value.replace(/\s*\(.*\)\s*$/, '').trim();
+}

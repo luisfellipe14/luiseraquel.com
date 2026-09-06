@@ -64,6 +64,7 @@ await test('keeps the bank-generated Pix payload intact (CRC, key and descriptio
 });
 
 import {
+  partnerName,
   STORAGE_KEY,
   guestCode,
   lookupRsvp,
@@ -146,4 +147,13 @@ await test('eases the scroll from a standstill to a standstill and never leaves 
     assert.ok(value >= previous, 'a rolagem nunca volta atrás');
     previous = value;
   }
+});
+
+await test('reads the partner name even when the sheet says "marido (Junior)"', () => {
+  assert.equal(partnerName('marido (Junior)'), 'Junior');
+  assert.equal(partnerName('Esposa (Ana Maria)'), 'Ana Maria');
+  assert.equal(partnerName('Madu'), 'Madu');
+  assert.equal(partnerName('Luan (a confirmar)'), 'Luan');
+  assert.equal(partnerName(''), '');
+  assert.equal(partnerName(null), '');
 });

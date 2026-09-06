@@ -22,6 +22,7 @@ import {
   lookupGuest,
   lookupRsvp,
   normalizePhone,
+  partnerName,
   readConfirmation,
   saveConfirmation,
   submitRsvp,
@@ -55,7 +56,7 @@ function HeroGreeting() {
       if (cancelled) return;
       const nome = found.convidado?.nome || (found.confirmado ? found.nome : '');
       if (!nome) return;
-      const par = found.convidado?.acompanhante?.replace(/\s*\(.*\)\s*$/, '') ?? '';
+      const par = partnerName(found.convidado?.acompanhante);
       setWho(par ? `${nome} e ${par}` : nome);
     });
     return () => {
