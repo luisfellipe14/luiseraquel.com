@@ -62,3 +62,69 @@ await test('keeps the bank-generated Pix payload intact (CRC, key and descriptio
   assert.match(PIX_PAYLOAD, new RegExp(PIX_DESCRIPTION));
   assert.ok(PIX_PAYLOAD.length <= 512);
 });
+
+import {
+  STORAGE_KEY,
+  guestCode,
+  lookupRsvp,
+  normalizePhone,
+  payload,
+  readConfirmation,
+  saveConfirmation,
+  submitRsvp,
+} from '../lib/rsvp.ts';
+
+await test('normalizes Brazilian phones the same way the spreadsheet script does', () => {
+  assert.equal(normalizePhone('(65) 98109-8383'), '5565981098383');
+  assert.equal(normalizePhone('65 3333-4444'), '556533334444');
+  assert.equal(normalizePhone('+55 65 98109-8383'), '5565981098383');
+  assert.equal(normalizePhone('98109-8383'), '');
+  assert.equal(normalizePhone(''), '');
+});
+await test('builds a bounded payload and reads the family code from the URL', () => {
+  const body = JSON.parse(
+    payload({ nome: '  Ana   Souza ', telefone: '65 98109-8383', pessoas: '25', recado: ' oi ', codigo: 'AbC123' }),
+  );
+  assert.deepEqual(body, { nome: 'Ana Souza', telefone: '5565981098383', pessoas: 10, recado: 'oi', codigo: 'abc123' });
+  assert.equal(JSON.parse(payload({ nome: 'x', pessoas: 'zero' })).pessoas, 1);
+  assert.equal(guestCode('?c=AbC123&x=1'), 'abc123');
+  assert.equal(guestCode('?c=../etc'), 'etc');
+  assert.equal(guestCode(''), '');
+});
+await test('posts without custom headers, follows the Apps Script redirect and reads the answer', async () => {
+  const calls: Array<{ url: string; init?: RequestInit }> = [];
+  const fakeFetch = (async (url: string, init?: RequestInit) => {
+    calls.push({ url, init });
+    return new Response(JSON.stringify({ ok: true, nome: 'Ana Souza', pessoas: 2, data: '06/09/2026' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }) as unknown as typeof fetch;
+  const saved = await submitRsvp('https://script.example/exec', { nome: 'Ana Souza', telefone: '65981098383', pessoas: 2 }, fakeFetch);
+  assert.deepEqual(saved, { nome: 'Ana Souza', pessoas: 2, data: '06/09/2026' });
+  assert.equal(calls[0].init?.method, 'POST');
+  assert.equal(calls[0].init?.redirect, 'follow');
+  assert.equal(calls[0].init?.headers, undefined);
+  const found = await lookupRsvp('https://script.example/exec', { tel: '65 98109-8383' }, fakeFetch);
+  assert.equal(found.ok, true);
+  assert.equal(new URL(calls[1].url).searchParams.get('tel'), '5565981098383');
+  await assert.rejects(
+    submitRsvp('https://script.example/exec', { nome: 'x', pessoas: 1 }, (async () => new Response('', { status: 500 })) as unknown as typeof fetch),
+    /HTTP 500/,
+  );
+});
+await test('remembers the confirmation on the device and survives a broken storage', () => {
+  const memory = new Map<string, string>();
+  const store = {
+    getItem: (k: string) => memory.get(k) ?? null,
+    setItem: (k: string, v: string) => void memory.set(k, v),
+    removeItem: (k: string) => void memory.delete(k),
+  };
+  saveConfirmation({ nome: 'Ana', pessoas: 2, data: '06/09/2026' }, store);
+  assert.ok(memory.has(STORAGE_KEY));
+  assert.deepEqual(readConfirmation(store), { nome: 'Ana', pessoas: 2, data: '06/09/2026' });
+  const broken = { getItem: () => { throw new Error('bloqueado'); }, setItem: () => { throw new Error('bloqueado'); }, removeItem: () => {} };
+  assert.equal(readConfirmation(broken), null);
+  assert.doesNotThrow(() => saveConfirmation({ nome: 'Ana', pessoas: 1, data: '' }, broken));
+  assert.equal(readConfirmation(null), null);
+});

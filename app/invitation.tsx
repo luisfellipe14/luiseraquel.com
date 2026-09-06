@@ -17,6 +17,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MAP_URL, remaining, whatsappUrl } from '@/lib/invitation';
 import {
+  clearConfirmation,
+  guestCode,
+  lookupRsvp,
+  normalizePhone,
+  readConfirmation,
+  saveConfirmation,
+  submitRsvp,
+  type Confirmation,
+} from '@/lib/rsvp';
+import {
   PIX_DESCRIPTION,
   PIX_KEY,
   PIX_KEY_DISPLAY,
@@ -59,29 +69,176 @@ function Countdown() {
   );
 }
 function Rsvp() {
+  const endpoint = siteConfig.rsvpEndpoint;
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [people, setPeople] = useState('1');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [opened, setOpened] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [fallback, setFallback] = useState(!endpoint);
+  const [done, setDone] = useState<Confirmation | null>(null);
+  const [code, setCode] = useState('');
+  const [greeting, setGreeting] = useState('');
   const nameRef = useRef<HTMLInputElement>(null);
-  function send(recipient: 'luis' | 'raquel') {
-    if (!name.trim()) {
+  const phoneRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!endpoint) return;
+    // Lê o aparelho e a URL depois da hidratação (o HTML pré-renderizado não os conhece).
+    const timer = window.setTimeout(() => {
+      const saved = readConfirmation();
+      if (saved) setDone(saved);
+      const c = guestCode(window.location.search);
+      if (!c) return;
+      setCode(c);
+      lookupRsvp(endpoint, { c })
+        .then((found) => {
+          if (found.confirmado && found.nome) {
+            const value = { nome: found.nome, pessoas: found.pessoas ?? 1, data: found.data ?? '' };
+            saveConfirmation(value);
+            setDone(value);
+          } else if (found.convidado?.nome) {
+            setGreeting(found.convidado.nome);
+          }
+        })
+        .catch(() => {});
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [endpoint]);
+
+  function sendWhatsapp(recipient: 'luis' | 'raquel') {
+    const guest = (done?.nome ?? name).trim();
+    if (!guest) {
       setError('Conte para nós o seu nome.');
       nameRef.current?.focus();
       return;
     }
     setError('');
     setOpened(true);
-    window.location.assign(whatsappUrl(recipient, name, note));
+    window.location.assign(whatsappUrl(recipient, guest, note));
   }
+
+  async function confirm() {
+    if (!name.trim()) {
+      setError('Conte para nós o seu nome.');
+      nameRef.current?.focus();
+      return;
+    }
+    if (!normalizePhone(phone)) {
+      setError('Confira o WhatsApp: DDD e número, como 65 99999-9999.');
+      phoneRef.current?.focus();
+      return;
+    }
+    setError('');
+    setBusy(true);
+    try {
+      const value = await submitRsvp(endpoint, {
+        nome: name,
+        telefone: phone,
+        pessoas: people,
+        recado: note,
+        codigo: code,
+      });
+      saveConfirmation(value);
+      setDone(value);
+    } catch {
+      setError(
+        'Não conseguimos registrar agora. Confirme pelo WhatsApp logo abaixo.',
+      );
+      setFallback(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function check() {
+    if (!normalizePhone(phone)) {
+      setError('Digite o WhatsApp usado na confirmação para conferir.');
+      phoneRef.current?.focus();
+      return;
+    }
+    setError('');
+    setChecking(true);
+    try {
+      const found = await lookupRsvp(endpoint, { tel: phone });
+      if (found.confirmado && found.nome) {
+        const value = { nome: found.nome, pessoas: found.pessoas ?? 1, data: found.data ?? '' };
+        saveConfirmation(value);
+        setDone(value);
+      } else {
+        setError('Não achamos confirmação com esse número. Preencha e confirme aqui.');
+      }
+    } catch {
+      setError('Não deu para conferir agora. Tente de novo em instantes.');
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function reset() {
+    clearConfirmation();
+    setDone(null);
+    setOpened(false);
+  }
+
+  if (done) {
+    return (
+      <div className="rsvp-form rsvp-done">
+        <output className="form-status confirmed">
+          <Check aria-hidden="true" />
+          <span>
+            Presença confirmada, <strong>{done.nome}</strong>
+            {done.pessoas > 1 ? ` (${done.pessoas} pessoas)` : ''}
+            {done.data ? `, em ${done.data}` : ''}. Obrigado!
+          </span>
+        </output>
+        <p className="form-instruction">
+          Quer nos mandar um oi? Escolha um de nós no WhatsApp.
+        </p>
+        <div className="recipient-buttons">
+          <Button
+            type="button"
+            className="action recipient"
+            onClick={() => sendWhatsapp('luis')}
+          >
+            <MessageCircle aria-hidden="true" />
+            Falar com Luis
+            <ArrowUpRight aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            className="action recipient secondary-action"
+            onClick={() => sendWhatsapp('raquel')}
+          >
+            <MessageCircle aria-hidden="true" />
+            Falar com Raquel
+            <ArrowUpRight aria-hidden="true" />
+          </Button>
+        </div>
+        <button type="button" className="link-button" onClick={reset}>
+          Mudou algo? Refazer a confirmação
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form
       className="rsvp-form"
       onSubmit={(event) => {
         event.preventDefault();
-        send('luis');
+        if (fallback) sendWhatsapp('luis');
+        else void confirm();
       }}
     >
+      {greeting && (
+        <p className="rsvp-greeting">
+          Olá, <strong>{greeting}</strong>! Este convite é seu.
+        </p>
+      )}
       <label htmlFor="guest-name">Seu nome</label>
       <Input
         ref={nameRef}
@@ -100,6 +257,42 @@ function Rsvp() {
         aria-invalid={!!error}
         aria-describedby={error ? 'name-error' : undefined}
       />
+      {endpoint && (
+        <div className="field-row">
+          <div>
+            <label htmlFor="guest-phone">Seu WhatsApp</label>
+            <Input
+              ref={phoneRef}
+              id="guest-phone"
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder="65 99999-9999"
+              maxLength={20}
+              required={!fallback}
+              value={phone}
+              onChange={(event) => {
+                setPhone(event.target.value);
+                setError('');
+              }}
+            />
+          </div>
+          <div>
+            <label htmlFor="guest-people">Quantas pessoas</label>
+            <Input
+              id="guest-people"
+              name="people"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={10}
+              value={people}
+              onChange={(event) => setPeople(event.target.value)}
+            />
+          </div>
+        </div>
+      )}
       {error && (
         <p id="name-error" className="form-error" role="alert">
           {error}
@@ -117,34 +310,60 @@ function Rsvp() {
         value={note}
         onChange={(event) => setNote(event.target.value)}
       />
-      <p className="form-instruction">
-        Escolha um de nós para receber sua confirmação.
-      </p>
-      <div className="recipient-buttons">
-        <Button type="submit" className="action recipient">
-          <MessageCircle aria-hidden="true" />
-          Enviar para Luis
-          <ArrowUpRight aria-hidden="true" />
-        </Button>
-        <Button
-          type="button"
-          className="action recipient secondary-action"
-          onClick={() => send('raquel')}
-        >
-          <MessageCircle aria-hidden="true" />
-          Enviar para Raquel
-          <ArrowUpRight aria-hidden="true" />
-        </Button>
-      </div>
-      <p className="form-note">
-        A mensagem abrirá no WhatsApp. Toque em <strong>Enviar</strong> para
-        concluir.
-      </p>
-      {opened && (
-        <output className="form-status">
-          Conclua o envio na conversa do WhatsApp. Sua confirmação chega
-          diretamente a nós.
-        </output>
+      {fallback ? (
+        <>
+          <p className="form-instruction">
+            Escolha um de nós para receber sua confirmação.
+          </p>
+          <div className="recipient-buttons">
+            <Button type="submit" className="action recipient">
+              <MessageCircle aria-hidden="true" />
+              Enviar para Luis
+              <ArrowUpRight aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              className="action recipient secondary-action"
+              onClick={() => sendWhatsapp('raquel')}
+            >
+              <MessageCircle aria-hidden="true" />
+              Enviar para Raquel
+              <ArrowUpRight aria-hidden="true" />
+            </Button>
+          </div>
+          <p className="form-note">
+            A mensagem abrirá no WhatsApp. Toque em <strong>Enviar</strong>{' '}
+            para concluir.
+          </p>
+          {opened && (
+            <output className="form-status">
+              Conclua o envio na conversa do WhatsApp. Sua confirmação chega
+              diretamente a nós.
+            </output>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="recipient-buttons">
+            <Button type="submit" className="action recipient" disabled={busy}>
+              <Check aria-hidden="true" />
+              {busy ? 'Registrando…' : 'Confirmar presença'}
+              <ArrowUpRight aria-hidden="true" />
+            </Button>
+          </div>
+          <p className="form-note">
+            Sua confirmação fica registrada com a gente na hora. O WhatsApp
+            serve só para reconhecer você se voltar por outro aparelho.{' '}
+            <button
+              type="button"
+              className="link-button inline"
+              onClick={() => void check()}
+              disabled={checking}
+            >
+              {checking ? 'Conferindo…' : 'Já confirmei antes'}
+            </button>
+          </p>
+        </>
       )}
     </form>
   );
